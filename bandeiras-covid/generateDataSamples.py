@@ -184,7 +184,7 @@ class generateDataSamples():
             return self.testingFlags
 
 
-    def getYellowData(self, grouping = 1.0, subsets = 1, trainSetSize = 15):
+    def getYellowData(self, grouping = 1.0, subsets = 1, trainSetSize = 150):
         # trainSetSize é o tamanho de cada subconj de treino
         # subsets é a quantidade de subconj de treino = tamanho da floresta
         dataList = []
@@ -227,7 +227,7 @@ class generateDataSamples():
         #cada item de datalist é um conjunto para treinamento de uma tree
         return dataList
 
-    def getOrangeData(self, grouping = 1.0, subsets = 1, trainSetSize = 15):
+    def getOrangeData(self, grouping = 1.0, subsets = 1, trainSetSize = 150):
         # trainSetSize é o tamanho de cada subconj de treino
         # subsets é a quantidade de subconj de treino = tamanho da floresta
         dataList = []
@@ -257,7 +257,7 @@ class generateDataSamples():
             dataList.append(subsetAtual)
         return dataList
 
-    def getRedData(self, grouping = 1.0, subsets = 1, trainSetSize = 15):
+    def getRedData(self, grouping = 1.0, subsets = 1, trainSetSize = 150):
         # trainSetSize é o tamanho de cada subconj de treino
         # subsets é a quantidade de subconj de treino = tamanho da floresta
         dataList = []
@@ -371,6 +371,24 @@ class generateDataSamples():
 
 
 
-generataData = generateDataSamples()
-generataData.singleTreeTrain(1500)
-generataData.singleTreeTest(5000)
+def newData(sizeByFlagTrain = 500, sizeByFlagTest = 3000):
+
+    generataData = generateDataSamples()
+    generataData.singleTreeTrain(sizeByFlagTrain)
+    generataData.singleTreeTest(sizeByFlagTest)
+    """    generataData.singleTreeTrain(500)
+        generataData.singleTreeTest(3000) """
+    """ generataData.singleTreeTrain(1500)
+    generataData.singleTreeTest(5000) """
+
+def newTrainData(sizeByFlagTrain = 500):
+
+    generataData = generateDataSamples()
+    generataData.singleTreeTrain(sizeByFlagTrain)
+
+def newTestData(sizeByFlagTest = 3000):
+
+    generataData = generateDataSamples()
+    generataData.singleTreeTest(sizeByFlagTest)
+
+newData(5000, 3000)

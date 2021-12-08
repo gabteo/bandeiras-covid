@@ -3,19 +3,23 @@ from generateDataSamples import generateDataSamples
 from statistics import mode
 from leafNode import leafNode
 import csv
+import matplotlib.pyplot as plt
+
+
 
 class forestClass:
-    def __init__(self, forestSize = 11, treesDepth = 6, trainGrouping = 0.4) -> None:
+    def __init__(self, forestSize = 11, treesDepth = 6, trainGrouping = 0.4, trainSetSize = 150, printForestFlag = False) -> None:
         self.forest = []
         self.forestSize = forestSize
         self.treesDepth = treesDepth
-        trainingDataList = getTrainList(trainGrouping, forestSize)
+        trainingDataList = getTrainList(trainGrouping, forestSize, trainSetSize)
         #obter dados de treinamento
 
         for i in range(forestSize):
             self.forest.append(treeClass.treeClass(trainingDataList[i], maxDepth = treesDepth, nodeDepth=-1))
-            printTree(self.forest[i].treeNode)
-            print("")
+            if printForestFlag:
+                printTree(self.forest[i].treeNode)
+                print("")
 
         #testar
         
@@ -41,7 +45,8 @@ class forestClass:
                 classeOriginal = "vermelha (3)"
                 
             originalFlagValue = int(testRow[-1])
-            print("")
+            if printForestGuesses:
+                print("")
             #print(testRow, testRow[-1], originalFlagValue)
             guess = []
             for i in range(self.forestSize):
@@ -64,8 +69,9 @@ class forestClass:
                 guess.append(quantidade.index(max(quantidade))+1)   # add o cod da flag 1, 2, 3
             
             rowFinalGuess = mode(guess)
-            print("chutou " + str(guess) + ", portanto " + str(rowFinalGuess))
-            print("era " + str(originalFlagValue))
+            if printForestGuesses:
+                print("chutou " + str(guess) + ", portanto " + str(rowFinalGuess))
+                print("era " + str(originalFlagValue))
             # certezaPalpite = ocorrencias(palpite)/palpitesDados
             # nao calculado por performance
             if rowFinalGuess == originalFlagValue:
@@ -76,11 +82,12 @@ class forestClass:
 
         print("Overall success da floresta: " + str(overallSuccess)+"%")
 
+        return overallSuccess
 
 
-def getTrainList(trainGrouping, forestSize):
+
+def getTrainList(trainGrouping, forestSize, trainSetSize = 300):
     generateData = generateDataSamples()
-    trainSetSize = 300
     yellow = generateData.getYellowData(trainGrouping, forestSize, trainSetSize)
     # yellow é uma lista, e
     # cada item de yellow é um conjunto para treinamento de uma tree
@@ -139,11 +146,6 @@ def printTree(node, tab=0):
     
 
 
-
-
-teste = forestClass()
-
-
 ######  ABRE DADOS DE TESTE  #######    
 testingFile = open("rawTestingData.csv", "r")
     #headerFile = open("decision-trees\\bandeirasHeader.csv", "r")
@@ -157,7 +159,38 @@ with testingFile as csv_file:
         #samples.append([row[0], row[1][0], row[2]])
         samples.append(row)
     #print(samples)
-
+testSamples = samples
 #random.shuffle(samples)
 
-teste.forestTest(samples)
+maxForestSize = 15
+forestTreesDepth = 4
+trainGrouping = 0.40
+trainSetSize = 3000
+printForestFlag = False
+printForestGuesses = False
+forestSuccess = [0]
+
+for z in range(1, maxForestSize+1):
+    floresta = forestClass(z, forestTreesDepth, trainGrouping, trainSetSize, printForestFlag)
+
+    forestSuccess.append(floresta.forestTest(testSamples))
+
+
+plt.close()
+xInt = range(0, maxForestSize+1)
+xData = []
+for i in range(maxForestSize+1):
+    xData.append(i)
+
+plt.xticks(xInt)
+plt.yticks(range(0, 100, 5))
+plt.title("Acerto vs tam. da Floresta")
+plt.xlabel('Tamanho da floresta')
+plt.ylabel('Acerto [%]')
+plt.plot(xData,forestSuccess)
+plt.ylim([0, 100])
+plt.xlim([0, 15])
+plt.grid()
+#plt.clf()
+plt.savefig("forestPlots\\acertoVsSize_D"+ str(forestTreesDepth)+"_G"+ str(int(trainGrouping*100)) +".jpg")
+plt.show()
